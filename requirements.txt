@@ -1,4 +1,5 @@
 pystan==2.19.1.1
+numpy
 streamlit==1.8.1
 pandas==1.4.1
 fbprophet==0.7.1
