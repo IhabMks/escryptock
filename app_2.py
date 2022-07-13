@@ -21,17 +21,42 @@ st.markdown("""
 
       html,body,[class*="css"] {
       font-family: 'Montserrat';
-      font-size: 14px;
-      }
+      /*font-size: 14px;*/}
+      
+      div[aria-selected="true"] {
+      font-variant: all-petite-caps;}
+      
+      li[role="option"] {
+      font-variant: all-small-caps;}
+      
+      input[aria-label="Select a date."] {
+      color:Darkblue;
+      font-family: 'Montserrat';
+      font-size: 20px;
+      font-variant: all-petite-caps;}
+
+      .css-q1blxj{
+      position: absolute;
+      margin-top: -10px;
+      transform: scale(0.5);
+      right: 7%;}
+      
+      .css-1et7pe5{
+      border: none;
+      padding: 6px 20px;
+      color: white;
+      font-weight: bolder;
+      background: #cbcbcb;
+      border-radius: 40px;}
+      
       .dashboard-title {
-      font-size: 45px;
-      }
+      font-size: 45px;}
+
       .header {
-      font-size: 25px;
-      }
+      font-size: 25px;}
+
       .sub-header {
-      font-size: 15px;
-      }
+      font-size: 15px;}
     </style>
     """,
         unsafe_allow_html=True,
@@ -39,13 +64,15 @@ st.markdown("""
 
 st.markdown(f'<p class = "dashboard-title">Dashboard</p>',unsafe_allow_html=True)
 
-algo_approach = ("Prophet",'LSTM', 'ARIMA')
-algo_approach = st.sidebar.selectbox("Select the technique for forecasting", algo_approach)
+col1, col2 = st.sidebar.columns([3, 0.1])
 
-stocks = ("Select",'AAPL', 'GOOG', 'MSFT', 'GME',"BTC-USD","BAT-USD","Other")
+algo_approach = ("PROPHET",'LSTM', 'ARIMA')
+algo_approach = col1.selectbox("Select the technique for forecasting", algo_approach)
+info = col2.button("i")
+stocks = (f"SELECT",'AAPL', 'GOOG', 'MSFT', 'GME',"BTC-USD","BAT-USD","OTHER")
 selected_stock = st.sidebar.selectbox("Select your ticker symbol", stocks)
 
-if selected_stock == "Other":
+if selected_stock == "OTHER":
     other_selected_stock = st.sidebar.text_input("Enter the ticker:")
 
 START_DATE = st.sidebar.date_input("Start date",value= pd.to_datetime("2015-01-01"))
@@ -56,8 +83,6 @@ predicted_var = st.sidebar.selectbox("Predicted Variable", predictable_vars)
 
 n_years = st.sidebar.slider("Years of predictions: ", 1, 5)
 period = n_years * 365
-
-
 
 #                                   ______________Loading_data______________
 
@@ -72,14 +97,14 @@ def load_data(ticker):
         return None
     return data
 
-if selected_stock == "Select" or (selected_stock == "Other" and len(other_selected_stock.strip()) == 0):
+if selected_stock == f"SELECT" or (selected_stock == "OTHER" and len(other_selected_stock.strip()) == 0):
   st.text("Awaiting for instructions...\nPlease choose the stock symbol on the left for further manipulations.")
 
 else :
-  if selected_stock == "Other" and len(other_selected_stock.strip()) != 0:
+  if selected_stock == "OTHER" and len(other_selected_stock.strip()) != 0:
       data = load_data(other_selected_stock)
       
-  elif selected_stock in stocks and selected_stock not in ["Select", "Other"]:
+  elif selected_stock in stocks and selected_stock not in [f"SELECT", "OTHER"]:
       data = load_data(selected_stock)
         
 
@@ -89,11 +114,9 @@ else :
 
 def display_plot_raw_data():
   if data is not None:
-      print(type(data))
       st.subheader("Raw data")
       st.write(data)
   else:
-      print(type(data))
       pass
 
   st.subheader("Raw data visualization")
@@ -111,15 +134,13 @@ def display_plot_raw_data():
 #                                   ______________Forecast_data______________
 def forecast_process(predicted_var):
   data_length = len(data)
-  if algo_approach == "Prophet":
+  if algo_approach == "PROPHET":
     df_train = data[["Date", predicted_var]]
     df_train = df_train.rename(columns = {"Date":"ds", predicted_var :"y"})
-
     m = Prophet()
     m.fit(df_train)
     future = m.make_future_dataframe(periods=period)
     forecast = m.predict(future)
-
     st.header("Preview: Forecast Data")
     st.subheader(f"Predicted Variable: {predicted_var}")
     forecast_table_display_choices = ("All","Trend",predicted_var+"_lower",predicted_var+"_upper","Trend_lower",
@@ -131,7 +152,7 @@ def forecast_process(predicted_var):
     if 'all' in forecast_table_display_selected:
       forecast_table_display = forecast_table_display_selected
       st.write(forecast.rename(columns = {"ds": "Date","yhat": predicted_var, "yhat_lower": predicted_var.lower()+"_lower",
-                                        "yhat_upper": predicted_var.lower()+"_upper"})[data_length:].reset_index(drop = True))
+                                        "yhat_upper": predicted_var.lower()+"_upper"})[data_length:].drop(columns = ["multiplicative_terms", "multiplicative_terms_lower", "multiplicative_terms_upper"]).reset_index(drop = True))
     else:
       st.write(forecast.rename(columns = {"ds": "Date","yhat": predicted_var, "yhat_lower": predicted_var.lower()+"_lower",
                                         "yhat_upper": predicted_var.lower()+"_upper"})[forecast_table_display_selected][data_length:].reset_index(drop = True))                                    
@@ -151,8 +172,8 @@ def forecast_process(predicted_var):
     st.title("ARIMA technique under construction...")
 
 
-if selected_stock != "Select":
-  if selected_stock == "Other" and len(other_selected_stock.strip()) == 0:
+if selected_stock != f"SELECT":
+  if selected_stock == "OTHER" and len(other_selected_stock.strip()) == 0:
     pass
   else:
     if data is not None:
