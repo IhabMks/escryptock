@@ -28,6 +28,11 @@ st.markdown("""
       
       li[role="option"] {
       font-variant: all-small-caps;}
+
+      input[aria-autocomplete="list"]{
+      color: Darkblue;
+      font-variant: all-petite-caps;
+      }
       
       input[aria-label="Select a date."] {
       color:Darkblue;
@@ -73,6 +78,18 @@ st.markdown("""
       color: Darkblue;
       font-size: 17px;
       text-transform: uppercase;}
+
+      div[data-testid="stHorizontalBlock"] div:nth-child(2), div[data-testid="stText"]{
+      align-self: center;
+      font-variant: all-petite-caps;
+      color: orange;
+      font-size: 18px;
+      animation: blink .85s linear infinite;}
+
+      @keyframes blink{
+      0%{opacity: 1;}
+      50%{opacity: 0.3;}
+      100%{opacity: 1;} }
     """,
         unsafe_allow_html=True,
     )
@@ -105,8 +122,9 @@ initial_input = {"selected_stock": selected_stock,
 
 
 #                                   ______________Loading_data______________
-
-def load_data(ticker):
+@st.cache(suppress_st_warning=True)
+def load_data(ticker,START_DATE,END_DATE):# for cache to work every parameters used in 
+  #the function should be add to the function so it's not the same.
     
     data = yf.download(ticker, START_DATE, END_DATE)
     data.reset_index(inplace=True)
@@ -114,28 +132,14 @@ def load_data(ticker):
     if len(data) == 0 :
         st.warning("There is no such ticker.")
         return None
+    st.session_state.last_ticker = ticker
     return data
-
-#if selected_stock == f"SELECT" or (selected_stock == "OTHER" and len(other_selected_stock.strip()) == 0):
-#  st.text("Awaiting for instructions...\nPlease choose the stock symbol on the left for further manipulations.")
-
-#else :
-#  if selected_stock == "OTHER" and len(other_selected_stock.strip()) != 0:
-#      data = load_data(other_selected_stock)
-#      
-#  elif selected_stock in stocks and selected_stock not in [f"SELECT", "OTHER"]:
-#      data = load_data(selected_stock)
-        
-
 
 #                                   ______________Display_raw_data_Plotting______________
 
 
-def display_plot_raw_data():
-  if selected_stock == "OTHER":
-    stock_crypto = other_selected_stock
-  else:
-    stock_crypto = selected_stock
+def display_plot_raw_data(data, stock_crypto):
+  
   with st.expander(f"Data history - {stock_crypto}", expanded = True):
     if data is not None:
         st.subheader("Raw data")
@@ -156,7 +160,6 @@ def display_plot_raw_data():
     st.plotly_chart(fig)
 
 #                                   ______________Forecast_data______________
-
 def forecast_process(predicted_var):
   if selected_stock == "OTHER":
     stock_crypto = other_selected_stock
@@ -201,9 +204,9 @@ if apply_button:
     pass
   else:
     if selected_stock == "OTHER" and len(other_selected_stock.strip()) != 0:
-      data = load_data(other_selected_stock)
+      data = load_data(other_selected_stock,START_DATE,END_DATE)
     else:
-      data = load_data(selected_stock)
+      data = load_data(selected_stock,START_DATE,END_DATE)
 
     if data is not None:
       st.session_state.selected_stock = selected_stock
@@ -217,16 +220,22 @@ if apply_button:
 
 
 if st.session_state.display:
+  # if selected_stock != "OTHER":
+  #   stock_crypto = st.session_state.selected_stock
+  # else:
+  #   stock_crypto = other_selected_stock
+    
+  data = st.session_state.data
+  display_plot_raw_data(data, st.session_state.last_ticker)
+  forecast_process(predicted_var)
+
   for k,v in st.session_state.items():
     if k in initial_input.keys():
       if v != initial_input[k]:
-        status_changes.text("Changes detected!")
-  data = st.session_state.data
-  display_plot_raw_data()
-  forecast_process(predicted_var)
+        status_changes.text("changes pending!")
 else:
   wait_message = st.empty()
-  wait_message.text("Awaiting for instructions...\nPlease choose the stock symbol on the left for further manipulations.")
+  wait_message.markdown("<p>Awaiting for instructions...<br>Please choose a ticker symbol on the left and apply the changes to get started.</p>", unsafe_allow_html = True)
 
 #  if selected_stock != f"SELECT":
 #    if selected_stock == "OTHER" and len(other_selected_stock.strip()) == 0:
