@@ -7,6 +7,7 @@ import pandas as pd
 from prophet import Prophet
 from prophet.plot import plot_plotly
 from plotly import graph_objs as go
+import json
 
 PAGE_CONFIG = {"page_title":"StkForecast.io","page_icon":"chart_with_upwards_trend","layout":"wide"}
 st.set_page_config(**PAGE_CONFIG)
@@ -79,22 +80,111 @@ st.markdown("""
       font-size: 17px;
       text-transform: uppercase;}
 
-      div[data-testid="stHorizontalBlock"] div:nth-child(2), div[data-testid="stText"]{
+      .change_alert{
       align-self: center;
       font-variant: all-petite-caps;
-      color: orange;
-      font-size: 18px;
-      animation: blink .85s linear infinite;}
+      color: darkorange;
+      font-size: 20px;
+      animation: blink 1s linear infinite;}
 
       @keyframes blink{
       0%{opacity: 1;}
-      50%{opacity: 0.3;}
+      50%{opacity: 0.4;}
       100%{opacity: 1;} }
+
+      blockquote {
+      color: darkblue;
+      position: relative;
+      margin: 5px auto;
+      width: 400px;
+      line-height: 27px;
+      padding-left: 30px;
+      border-left: 2px solid darkblue;}
+      
+      blockquote span {
+        display: block;
+        text-align: right;
+        font-size: 24px;
+        line-height: 40px;
+        margin-top: 10px;
+        text-transform: uppercase;}
+      
+      blockquote:hover p {
+        opacity: 0.5;
+        transition: opacity 0.2s ease;}
+      home_col_1_2_header{
+        font-weight: normal;
+        letter-spacing: -1px;
+        color: #34495E;}
+      table{
+        border-spacing: initial;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 3px;
+        overflow: hidden;
+        width: 100%;
+        margin: 0 auto;
+        position: relative;}
+
+      table tr:nth-child(even) td{
+      background:#dedede66;}
+
+      table tr:nth-child(odd) td{
+        background:#fff;}
+      
+      table * {
+        position: relative;}
+      
+      table thead tr {
+        height: 60px;
+        background: #36304a;}
+      
+      .table100-head th {
+        font-family: Montserrat;
+        color: #fff;
+        border: 0;
+        line-height: 1.2;
+        font-weight: unset;}
+      
+      .column1 {
+        width: 260px;
+        padding-left: 40px;}
+      .column2 {
+        width: 160px;}
+      .column3 {
+        width: 245px;}
+      .column4 {
+        width: 245px;
+        text-align: right;
+        padding-right: 62px}
+
+      table td, table th {
+        text-align: left;
+        padding-left: 8px;}
+
+      th {
+        text-align: left}
+      
+      table tbody tr {
+        height: 50px;}
+      
+      tbody tr {
+        font-family: Montserrat;
+        font-size: 15px;
+        line-height: 1.2;
+        font-weight: unset;}
+      
+      .css-vba4y6 th, .css-vba4y6 td, .css-vba4y6 tr {
+        border:0;}
+
+
     """,
         unsafe_allow_html=True,
     )
+with open("trending_quote.json", "r") as fp:
+  trending_quote = json.load(fp)
 
-st.markdown(f'<p class = "dashboard-title">Dashboard</p>',unsafe_allow_html=True)
+title_message = st.empty()
 
 stocks = (f"SELECT",'AAPL', 'GOOG', 'MSFT', 'GME',"BTC-USD","BAT-USD","OTHER")
 selected_stock = st.sidebar.selectbox("Select your ticker symbol", stocks)
@@ -110,11 +200,11 @@ predicted_var = st.sidebar.selectbox("Predicted Variable", predictable_vars)
 
 n_years = st.sidebar.slider("Years of predictions: ", 1, 5)
 period = n_years * 365
-button_col, status_col = st.sidebar.columns(2)
+button_col, status_col = st.sidebar.columns([0.8,1])
 apply_button = button_col.button("Apply")
-status_changes = status_col.empty()
+#status_changes = status_col.empty()
 
-initial_input = {"selected_stock": selected_stock,
+current_input = {"selected_stock": selected_stock,
                  "START_DATE": START_DATE,
                  "END_DATE": END_DATE,
                  "predicted_var":predicted_var,
@@ -123,14 +213,14 @@ initial_input = {"selected_stock": selected_stock,
 
 #                                   ______________Loading_data______________
 @st.cache(suppress_st_warning=True)
-def load_data(ticker,START_DATE,END_DATE):# for cache to work every parameters used in 
-  #the function should be add to the function so it's not the same.
+def load_data(ticker, START_DATE, END_DATE):
     
     data = yf.download(ticker, START_DATE, END_DATE)
     data.reset_index(inplace=True)
 
     if len(data) == 0 :
-        st.warning("There is no such ticker.")
+        st.warning(f"No matching results for <{ticker.upper()}>")
+        st.info("Tip: Try a valid symbol for relevant results.")
         return None
     st.session_state.last_ticker = ticker
     return data
@@ -139,19 +229,14 @@ def load_data(ticker,START_DATE,END_DATE):# for cache to work every parameters u
 
 
 def display_plot_raw_data(data, stock_crypto):
-  
   with st.expander(f"Data history - {stock_crypto}", expanded = True):
-    if data is not None:
-        st.subheader("Raw data")
-        st.write(data)
-    else:
-        pass
+    st.subheader("Raw data")
+    st.write(data)
   
     st.subheader("Data visualization")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x = data["Date"], y = data["Open"], name = "Stock_open"))
     fig.add_trace(go.Scatter(x = data["Date"], y = data["Close"], name = "Stock_close"))
-    #fig.add_trace(go.Scatter(x = data["Date"], y = data["Adj Close"], name = "Adj Close"))
     fig.layout.update(xaxis_title = "Time-line", yaxis_title = "Price", 
         xaxis_rangeslider_visible = True, margin=dict(l=0, r=0, t=50, b=50), width = 900, height = 550,
         font_family="Montserrat",
@@ -160,11 +245,7 @@ def display_plot_raw_data(data, stock_crypto):
     st.plotly_chart(fig)
 
 #                                   ______________Forecast_data______________
-def forecast_process(predicted_var):
-  if selected_stock == "OTHER":
-    stock_crypto = other_selected_stock
-  else:
-    stock_crypto = selected_stock
+def forecast_process(predicted_var, stock_crypto):
   with st.expander(f"Forecasting - {stock_crypto}", expanded = True):
     data_length = len(data)
     df_train = data[["Date", predicted_var]]
@@ -181,8 +262,8 @@ def forecast_process(predicted_var):
     "Weekly","Weekly_lower","Weekly_upper","Yearly","Yearly_lower","Yearly_upper")
     forecast_table_display = st.multiselect("Displayed features:",forecast_table_display_choices, default="All", help="Add additional features to view on the table below.")
     forecast_table_display_selected = ["Date", predicted_var]+[indice.lower() if indice != predicted_var else indice for indice in forecast_table_display]
+    
     if 'all' in forecast_table_display_selected:
-      
       st.write(forecast.rename(columns = {"ds": "Date","yhat": predicted_var, "yhat_lower": predicted_var.lower()+"_lower",
         "yhat_upper": predicted_var.lower()+"_upper"})[data_length:].drop(columns = ["multiplicative_terms", "multiplicative_terms_lower", "multiplicative_terms_upper"]).reset_index(drop = True))
     else:
@@ -204,9 +285,9 @@ if apply_button:
     pass
   else:
     if selected_stock == "OTHER" and len(other_selected_stock.strip()) != 0:
-      data = load_data(other_selected_stock,START_DATE,END_DATE)
+      data = load_data(other_selected_stock, START_DATE, END_DATE)
     else:
-      data = load_data(selected_stock,START_DATE,END_DATE)
+      data = load_data(selected_stock, START_DATE,END_DATE)
 
     if data is not None:
       st.session_state.selected_stock = selected_stock
@@ -220,36 +301,79 @@ if apply_button:
 
 
 if st.session_state.display:
-  # if selected_stock != "OTHER":
-  #   stock_crypto = st.session_state.selected_stock
-  # else:
-  #   stock_crypto = other_selected_stock
-    
-  data = st.session_state.data
-  display_plot_raw_data(data, st.session_state.last_ticker)
-  forecast_process(predicted_var)
+  title_message.markdown('<p class = "dashboard-title">Dashboard</p>',unsafe_allow_html=True)
+  
+  # Checking if anything has been changed and not been applied yet:
+  # This is achieved by comparing the session_state of each input updated the last time the button
+  # "apply" is pressed and the current input, which is changed whenever a user changes something.
 
   for k,v in st.session_state.items():
-    if k in initial_input.keys():
-      if v != initial_input[k]:
-        status_changes.text("changes pending!")
-else:
-  wait_message = st.empty()
-  wait_message.markdown("<p>Awaiting for instructions...<br>Please choose a ticker symbol on the left and apply the changes to get started.</p>", unsafe_allow_html = True)
+    if k in current_input.keys():
+      if v != current_input[k]:
+        #status_changes.text("changes pending!")
+        status_col.markdown('<p class = "change_alert">changes pending</p>',unsafe_allow_html = True)
 
-#  if selected_stock != f"SELECT":
-#    if selected_stock == "OTHER" and len(other_selected_stock.strip()) == 0:
-#      pass
-#    else:
-#      if selected_stock == "OTHER" and len(other_selected_stock.strip()) != 0:
-#        data = load_data(other_selected_stock)
-#      
-#      elif selected_stock in stocks and selected_stock not in [f"SELECT", "OTHER"]:
-#        data = load_data(selected_stock)
-#      if data is not None:
-#        try:
-#          text.text("")
-#          display_plot_raw_data()
-#          forecast_process(predicted_var)
-#        except:
-#          pass
+  data = st.session_state.data
+  display_plot_raw_data(data, st.session_state.last_ticker)
+  forecast_process(predicted_var, st.session_state.last_ticker)
+
+else:
+  home_left, home_right = st.columns(2)
+  title_message.markdown(
+    '<p class = "dashboard-title" style = "font-size : 35px">Escryptock makes it the easiest way to forecast your asset.</p>',
+    unsafe_allow_html=True)
+  home_left.markdown(f"""
+    <h1 class="home_col_1_2_header">Trending tickers</h1>
+    <table>
+        <thead>
+          <tr class="table100-head">
+            <th class="column1">Symbol</th>
+            <th class="column2">Last Price</th>
+            <th class="column3">Open</th>
+            <th class="column4">Volume</th>
+          </tr>
+        </thead>
+        <tbody>
+          {"".join(["<tr><td class='column1'>{}</td><td class='column2'>{}</td><td class='column3'>{}<td class='column4'>{}</td></tr>".format(v["symbol"], v["currentPrice"], v["open"], v["volume"]) for v in trending_quote.values()])}
+        </tbody>
+      </table>
+    """, unsafe_allow_html = True)
+
+  home_right.markdown(f"""
+    <h1 class="home_col_1_2_header">Latest news</h1>
+    <table>
+        <thead>
+          <tr class="table100-head">
+            <th class="column1">Symbol</th>
+            <th class="column2">Last Price</th>
+            <th class="column3">Open</th>
+            <th class="column4">Volume</th>
+          </tr>
+        </thead>
+        <tbody>
+          {"".join(["<tr><td class='column1'>{}</td><td class='column2'>{}</td><td class='column3'>{}<td class='column4'>{}</td></tr>".format(v["symbol"], v["currentPrice"], v["open"], v["volume"]) for v in trending_quote.values()])}
+        </tbody>
+      </table>
+    """, unsafe_allow_html = True)
+  st.info("Awaiting for instructions...<br>Please choose a ticker symbol on the left and apply the changes to get started.")
+  #st.markdown("<p>Awaiting for instructions...<br>Please choose a ticker symbol on the left and apply the changes to get started.</p>",
+  # unsafe_allow_html = True)
+
+
+
+
+
+#  st.markdown(
+#    """
+#    <blockquote>
+#    <p>Although expectations of the future are supposed to be the driving force in the capital markets, those expectations are almost totally dominated by memories of the past. Ideas, once accepted, die hard.
+#      <span>- Peter Bernstein</span>
+#    </p>
+#    </blockquote>
+#    """,
+#    unsafe_allow_html=True)
+#   st.markdown("""<p class = "quote"><span class = "q_mark">“</span>Although expectations of the future are supposed to be the driving force in the capital markets, those expectations are almost totally dominated by memories of the past. Ideas, once accepted, die hard.<span class = "q_mark">”</span><span class = "author"><br>— Peter Bernstein —</span></p>""",
+#     unsafe_allow_html=True)
+#T5NJMEN0K7I9NZKJ
+#url = 'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=BTC&topics=financial_markets&limit=8&apikey=T5NJMEN0K7I9NZKJ'
+#url = "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=CRYPTO:BTC&topics=financial_markets&limit=10&apikey=T5NJMEN0K7I9NZKJ"
