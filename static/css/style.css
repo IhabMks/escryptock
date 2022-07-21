@@ -1,0 +1,194 @@
+@import 'https://fonts.googleapis.com/css?family=Montserrat';
+section[data-testid="stSidebar"] > div {width: 19.5rem;}
+
+*{
+  font-family: 'Montserrat';
+  color: Darkblue;
+  font-size: 20px;}
+
+/*html,body,[class*="css"] {
+font-family: 'Montserrat';
+font-size: 14px;}*/
+
+div[aria-selected="true"] {
+  font-variant: all-petite-caps;}
+
+li[role="option"] {
+  font-variant: all-small-caps;}
+
+input[aria-autocomplete="list"]{
+  color: Darkblue;
+  font-variant: all-petite-caps;}
+
+input[aria-label="Select a date."] {
+  color:Darkblue;
+  font-family: 'Montserrat';
+  font-size: 20px;
+  font-variant: all-petite-caps;}
+
+div[data-baseweb="base-input"] input {
+  color: Darkblue;
+  font-family: 'Montserrat';
+  font-size: 20px;
+  font-variant: all-petite-caps;}
+
+.css-q1blxj{
+  position: absolute;
+  margin-top: -10px;
+  transform: scale(0.5);
+  right: 7%;}
+
+/*.css-1et7pe5{
+border: none;
+padding: 6px 20px;
+color: white;
+font-weight: bolder;
+background: #cbcbcb;
+border-radius: 40px;}*/
+
+.dashboard-title{
+  transition: .5s;}
+
+#.dashboard-title:hover > #.app-name{
+  background-color: red;
+  transform: translateX(10px);
+}
+
+
+.header {
+  font-size: 25px;}
+
+.sub-header {font-size: 15px;}
+
+section[tabindex="0"] .block-container{
+  padding: 4rem 2rem 0 1rem;}
+
+.streamlit-expanderHeader{
+  font-family: Montserrat;
+  color: Darkblue;
+  font-size: 17px;
+  text-transform: uppercase;}
+
+.change_alert{
+  align-self: center;
+  font-variant: all-petite-caps;
+  color: darkorange;
+  font-size: 20px;
+  animation: blink 1s linear infinite;}
+@keyframes blink{
+  0%{opacity: 1;}
+  50%{opacity: 0.4;}
+  100%{opacity: 1;} }
+
+blockquote {
+  color: darkblue;
+  position: relative;
+  margin: 5px auto;
+  width: 400px;
+  line-height: 27px;
+  padding-left: 30px;
+  border-left: 2px solid darkblue;}
+
+blockquote span {
+  display: block;
+  text-align: right;
+  font-size: 24px;
+  line-height: 40px;
+  margin-top: 10px;
+  text-transform: uppercase;}
+
+blockquote:hover p {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;}
+
+.home_col_1_2_header{
+  user-select: none;
+}
+                                        /*Home styling*/
+                                        /*Trending tickers*/
+table tr:nth-child(even) td{
+  background:#dedede66;}
+table tr:nth-child(odd) td{
+  background:#fff;}
+
+table {
+  width: 100%}
+
+table thead tr {
+  height: 40px;
+  background: #36304a;}
+
+.table100-head th {
+  font-family: Montserrat;
+  color: #fff;
+  border: 0;
+  line-height: 1.2;
+  font-weight: unset;}
+
+.column1{
+  white-space: nowrap;}       
+
+.css-vba4y6 th, .css-vba4y6 td, .css-vba4y6 tr {
+  border:0;
+  transition: .5s;}
+.css-vba4y6 td {
+  user-select: none;}
+
+tbody tr:hover{-webkit-text-stroke: medium; transform: translateX(5px); box-shadow: 0 2px 8px rgb(0 0 0 / 15%);}
+
+                                          /*News feed*/
+.single-blog-post.post-style-2 {
+  margin-bottom: 20px;
+  height: 105px;
+  text-decoration: none;
+  transition: .2s}
+
+.news_container a:hover{background-color:whitesmoke;transform:scale(1.05)}
+
+.single-blog-post {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);}
+
+.d-flex {
+  display: -webkit-box!important;
+  display: flex!important;}
+
+.single-blog-post.post-style-2 .post-thumbnail {
+  -webkit-box-flex: 0;
+  flex: 0 0 125px;
+  min-width: 125px;
+  min-height: 100px;
+  margin-right: 15px;}
+
+.single-blog-post .post-thumbnail img {
+  width: 100%;
+  height: 100%}
+
+.single-blog-post.post-style-2 .post-content {
+  padding: 5px 30px 5px 5px;}
+
+.single-blog-post.post-style-2 .post-content p {
+  color:black;
+  font-weight:bold;
+  margin-bottom: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;}
+
+.single-blog-post .post-content .post-meta p {
+  margin-bottom: 0;
+  font-size: 12px;
+  color: #ff0000;
+  line-height: 1.4;}
+
+.single-blog-post .post-content .post-meta p span {
+  font-size: 12px;
+  color: #8d8d8d;}
+
+
+@media (max-width: 1190px){
+.css-keje6w {min-width: calc(100% - 1.5rem);}
+.single-blog-post.post-style-2 .post-content {padding: 20px 0 5px 5px;}
+/*.single-blog-post.post-style-2 .post-thumbnail {
+  min-width: 115px;
+  height: auto}*/ 
