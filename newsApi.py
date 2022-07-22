@@ -46,5 +46,6 @@ def get_news():
 	
 	except:
 		# Handle API rate limits, in case of reaching maximum api calls or other potentiel errors
+		# An older json file containing the data will be returned
 		with open("static/json/news_feed_backup.json", "r") as fp:
 			return json.load(fp)

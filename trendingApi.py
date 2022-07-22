@@ -37,5 +37,6 @@ def get_trend():
 		return trend_dict
 	except:
 		# Handle API rate limits, in case of reaching maximum api calls or other potentiel errors
+		# An older json file containing the data will be returned
 		with open("static/json/trending_quote_backup.json", "r") as fp:
 			return json.load(fp)
