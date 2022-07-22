@@ -6,10 +6,6 @@ section[data-testid="stSidebar"] > div {width: 19.5rem;}
   color: Darkblue;
   font-size: 20px;}
 
-/*html,body,[class*="css"] {
-font-family: 'Montserrat';
-font-size: 14px;}*/
-
 div[aria-selected="true"] {
   font-variant: all-petite-caps;}
 
@@ -38,20 +34,30 @@ div[data-baseweb="base-input"] input {
   transform: scale(0.5);
   right: 7%;}
 
-/*.css-1et7pe5{
-border: none;
-padding: 6px 20px;
-color: white;
-font-weight: bolder;
-background: #cbcbcb;
-border-radius: 40px;}*/
-
 .dashboard-title{
-  transition: .5s;}
+  user-select: none;
+  transition: .5s;
+  font-size: 35px;}
 
-#.dashboard-title:hover > #.app-name{
-  background-color: red;
+.dashboard-title:hover .app-name{
+  --_p: 100%;
+  --_s: .3s;
+}
+.dashboard-title:hover{
   transform: translateX(10px);
+}
+.app-name{
+  --b: 0.1em;
+  --c: #FFDB58;
+  
+  color: #0000;
+  padding-block: var(--b);
+  background: 
+    linear-gradient(var(--c) 50%, darkblue 0) 0% calc(100% - var(--_p,0%))/100% 200%,
+    linear-gradient(var(--c) 0 0) 0% var(--_p,0%)/var(--_p,0%) var(--b) no-repeat;
+  -webkit-background-clip: text,padding-box;
+          background-clip: text,padding-box;
+  transition: .3s var(--_s,0s) linear,background-size .3s calc(.3s - var(--_s,0s));
 }
 
 
@@ -111,8 +117,7 @@ table tr:nth-child(even) td{
 table tr:nth-child(odd) td{
   background:#fff;}
 
-table {
-  width: 100%}
+table {width: 100%;}
 
 table thead tr {
   height: 40px;
@@ -189,6 +194,3 @@ tbody tr:hover{-webkit-text-stroke: medium; transform: translateX(5px); box-shad
 @media (max-width: 1190px){
 .css-keje6w {min-width: calc(100% - 1.5rem);}
 .single-blog-post.post-style-2 .post-content {padding: 20px 0 5px 5px;}
-/*.single-blog-post.post-style-2 .post-thumbnail {
-  min-width: 115px;
-  height: auto}*/ 

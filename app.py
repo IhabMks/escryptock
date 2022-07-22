@@ -1,7 +1,5 @@
-#from os import name
 import streamlit as st
 from datetime import date#, datetime
-#from streamlit.proto.Empty_pb2 import Empty
 import yfinance as yf
 import pandas as pd
 from prophet import Prophet
@@ -11,7 +9,7 @@ import json
 from newsApi import get_news
 from trendingApi import get_trend
 
-PAGE_CONFIG = {"page_title":"StkForecast.io","page_icon":"chart_with_upwards_trend","layout":"wide"}
+PAGE_CONFIG = {"page_title":"Escryptoc.k.","page_icon":"chart_with_upwards_trend","layout":"wide"}
 st.set_page_config(**PAGE_CONFIG)
 
 with open("static/css/style.css", "r") as fp:
@@ -42,7 +40,6 @@ forecast_period = st.sidebar.selectbox("How many days to predict? ", periods)
 
 button_col, status_col = st.sidebar.columns([0.5,1])
 apply_button = button_col.button("Apply")
-#status_changes = status_col.empty()
 
 current_input = {"selected_stock": selected_stock,
                  "START_DATE": START_DATE,
@@ -145,12 +142,11 @@ if st.session_state.display:
   
   # Checking if anything has been changed and not been applied yet:
   # This is achieved by comparing the session_state of each input updated the last time the button
-  # "apply" is pressed and the current input, which is changed whenever a user changes something.
+  # "Apply" is pressed and the current input, which is changed whenever a user changes something.
 
   for k,v in st.session_state.items():
     if k in current_input.keys():
       if v != current_input[k]:
-        #status_changes.text("changes pending!")
         status_col.markdown('<p class = "change_alert">changes pending!</p>',unsafe_allow_html = True)
 
   data = st.session_state.data
@@ -159,9 +155,11 @@ if st.session_state.display:
 
 else:
   home_left, home_right = st.columns(2)
+
   title_message.markdown(
-    '<p class = "dashboard-title" style = "font-size : 35px"><span class = "app-name" style = "font-size : 35px">Escryptock</span> makes it the easiest way to forecast your asset!</p>',
+    '<p class = "dashboard-title"><span class = "app-name" style = "font-size : 35px">Escryptock</span> makes it the easiest way to forecast your asset!</p>',
     unsafe_allow_html=True)
+
   home_left.markdown(f"""
     <h1 class="home_col_1_2_header">Trending tickers</h1>
     <table>
@@ -186,8 +184,6 @@ else:
     </div>
     """, unsafe_allow_html = True)
 
-  #st.markdown("<p>Awaiting for instructions...<br>Please choose a ticker symbol on the left and apply the changes to get started.</p>",
-  # unsafe_allow_html = True)
   st.info("To get started, please choose a ticker symbol on the left and apply the changes.")
 
 #https://investexcel.net/all-yahoo-finance-stock-tickers/
